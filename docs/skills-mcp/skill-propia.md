@@ -14,4 +14,7 @@ Se usó la guía de **`skill-creator`** (Anthropic) como base: frontmatter con `
 - Incluye un punto de datos ficticios (R-01) y otro de capas (R-03).
 
 ## 4. Integración en el flujo
-Está registrada en [`.atl/skill-registry.md`](../../.atl/skill-registry.md) y en `AGENTS.md`. Se usa después de `openspec-propose` y antes de `openspec-archive-change`. En C-02 se aplicó antes de archivar; el resultado está en [docs/evidencia/C-02-agenda-diaria.md](../evidencia/C-02-agenda-diaria.md#revisión-con-la-skill-odontologia-turnos).
+Está registrada en [`.atl/skill-registry.md`](../../.atl/skill-registry.md) y en `AGENTS.md`. Se usa después de `openspec-propose` y antes de `openspec-archive-change`. Se aplicó antes de archivar C-02, C-03 y C-04; los resultados están al final de cada archivo de [docs/evidencia/](../evidencia/).
+
+## 5. Evolución
+En C-03 la skill se **actualizó**: se agregó el punto 10 (Seguridad: rutas con sesión, permisos en el backend, secretos fuera del repo) y se amplió el punto 4 con el mecanismo de PostgreSQL. Así la skill crece junto con el proyecto.

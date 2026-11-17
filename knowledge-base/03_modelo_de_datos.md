@@ -13,14 +13,23 @@ erDiagram
     datetime inicio "UTC"
     datetime fin "UTC"
   }
+  USUARIO {
+    string id PK
+    string nombre
+    string rol
+    string clave_hash "PBKDF2"
+  }
 ```
 
 | Entidad | Campos | Notas |
 | --- | --- | --- |
 | Paciente | `id` (hasta 64), `nombre` | Ficticio |
-| Profesional | `id`, `nombre` | Ficticio |
-| Box | `id`, `nombre` | Sillón / consultorio físico |
+| Profesional | `id`, `nombre` | Ficticio. Su fila se bloquea al registrar un turno en PostgreSQL |
+| Box | `id`, `nombre` | Sillón / consultorio físico. Ídem |
 | Turno | `id`, `paciente_id`, `profesional_id`, `box_id`, `inicio`, `fin` | `[inicio, fin)` en UTC |
+| Usuario | `id`, `nombre`, `rol`, `clave_hash` | Personal (C-03). Nunca se guarda la clave en texto |
+
+Fuera de la base: las **sesiones cerradas** se guardan en Redis como `odontologia:revocado:<jti>` con vencimiento automático.
 
 ## Catálogo ficticio (`backend/odontologia/datos_demo.py`)
 
@@ -29,6 +38,7 @@ erDiagram
 | Pacientes | `PAC-001` Paciente Ficticio Uno, `PAC-002` Paciente Ficticio Dos |
 | Profesionales | `PRO-001` Odontóloga Ficticia A, `PRO-002` Odontólogo Ficticio B |
 | Boxes | `BOX-1`, `BOX-2` |
+| Usuarios | `recepcion`, `profesional`, `admin` |
 
 ## Ejemplo de turno
 

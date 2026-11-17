@@ -8,6 +8,8 @@
 | RN-04 | Fecha-hora con zona horaria, minutos exactos, guardado en UTC; consultorio en UTC-03:00 | `_validar_instante`, `consultar_agenda` | `EntradasInvalidas.*`, `ServicioAgenda.*` |
 | RN-05 | No hay sobreturnos | Consecuencia de RN-01/02 | — |
 | RN-06 | Sólo datos ficticios | Catálogo y pruebas | Revisión con la skill propia |
+| RN-07 | Sólo el personal con sesión válida usa la agenda; registrar turnos es de Recepción y Administración | `autenticacion.py` | `test_autenticacion.ProteccionDeRutas.*` |
+| RN-08 | Dos altas simultáneas del mismo recurso nunca se registran ambas, en SQLite y en PostgreSQL | `db.py` (BEGIN IMMEDIATE), `servicio.py` (FOR UPDATE) | `Concurrencia.*` |
 
 ## Superposición
 
@@ -31,5 +33,9 @@ Dos turnos A y B se superponen si `A.inicio < B.fin` **y** `A.fin > B.inicio`.
 | `recurso_desconocido` | 404 | Paciente, profesional o box inexistente (se informa el primero, en ese orden) |
 | `conflicto_profesional` | 409 | RN-01 (tiene prioridad si chocan ambos) |
 | `conflicto_box` | 409 | RN-02 |
+| `credenciales_invalidas` | 401 | Usuario o clave incorrectos (mismo mensaje en ambos casos) |
+| `no_autenticado` | 401 | Falta la cabecera `Authorization: Bearer` |
+| `token_invalido` | 401 | Token mal formado, vencido, de otro secreto o cerrado |
+| `sin_permiso` | 403 | El rol no puede hacer esa operación (RN-07) |
 
 Formato de respuesta: `{"error": "...", "campo": "...", "mensaje": "..."}`.

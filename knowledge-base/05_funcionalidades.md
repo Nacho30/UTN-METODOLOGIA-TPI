@@ -19,5 +19,23 @@ Criterios de aceptación:
 - Fecha inválida → 422; filtro inexistente → 404; día sin turnos → lista vacía.
 - La pantalla muestra horas locales y los estados cargando, vacío y error.
 
+## US-03 — Ingresar con mi usuario (C-03)
+**Como** integrante del personal **quiero** ingresar con usuario y clave **para** que sólo el personal autorizado use la agenda.
+
+Criterios de aceptación:
+- Usuario y clave correctos → token JWT; incorrectos → 401 con el mismo mensaje.
+- Sin sesión, toda operación de agenda responde 401.
+- Profesional puede ver la agenda pero no registrar turnos (403).
+- Al salir, el token deja de servir aunque no haya vencido.
+- La pantalla pide ingresar antes de mostrar la agenda y vuelve al ingreso si la sesión vence.
+
+## US-04 — Operar con PostgreSQL y Docker (C-04)
+**Como** responsable técnico **quiero** correr el sistema con PostgreSQL y Docker Compose **para** usar el stack de producción indicado sin perder las garantías.
+
+Criterios de aceptación:
+- Toda la suite de pruebas pasa contra PostgreSQL.
+- Dos altas simultáneas del mismo profesional o box: sólo una se registra.
+- `docker compose up` levanta PostgreSQL, Redis, backend y frontend; los secretos van en `.env`.
+
 ## Futuras
-US-03 login (C-03), US-04 cancelar/reprogramar (C-04), US-05 pacientes (C-05), US-06 formulario de alta (C-06), US-07 recordatorios (C-08).
+US-05 cancelar/reprogramar (C-05), US-06 pacientes (C-06), US-07 formulario de alta (C-07), US-08 recordatorios (C-08).

@@ -1,7 +1,7 @@
 # Discovery — Sistema de agenda para consultorio odontológico
 
 **Alumno:** Ignacio Martín Rodríguez · **Materia:** Metodología I (UTN) · **Comisión:** 3
-**Fecha:** 2026-11-16 · **Estado:** cerrado para C-01 y C-02
+**Fecha:** 2026-11-16 · **Estado:** cerrado para C-01 a C-04
 
 > Caso de estudio **ficticio**. No se usaron datos de pacientes reales.
 
@@ -41,11 +41,12 @@ Son afirmaciones publicitarias o de ayuda de cada empresa; no se probaron los pr
 - **RN-04:** los horarios se ingresan con zona horaria y se guardan en UTC; el consultorio opera en UTC-03:00.
 - **RN-05:** no hay sobreturnos.
 - **RN-06:** sólo datos ficticios.
+- **RN-07:** sólo el personal con sesión usa la agenda; registrar turnos es de Recepción y Administración.
 
 ## 5. Alcance
 
-**Dentro (entrega TPI):** C-01 alta de turnos sin solapamientos y C-02 consulta de agenda diaria con pantalla web.
-**Fuera (roadmap):** autenticación, cancelación/reprogramación, gestión de pacientes, formulario de alta, PostgreSQL, recordatorios. Ver [ROADMAP.md](../ROADMAP.md).
+**Dentro (entrega TPI):** C-01 alta de turnos sin solapamientos, C-02 consulta de agenda diaria con pantalla web, C-03 login del personal con JWT y Redis, C-04 PostgreSQL y Docker Compose. Con eso se usa el stack completo indicado por la cátedra.
+**Fuera (roadmap):** cancelación/reprogramación, gestión de pacientes, formulario de alta, recordatorios. Ver [ROADMAP.md](../ROADMAP.md).
 **Nunca:** historia clínica real, pagos, integraciones con obras sociales o AFIP/ARCA.
 
 ## 6. Preguntas abiertas

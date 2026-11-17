@@ -33,6 +33,31 @@ El alumno clonó el repo y ejecutó `scripts\verificar.ps1` (PowerShell 5.1):
 
 Esto resuelve las verificaciones de npm, build y OpenSpec que habían quedado pendientes.
 
+## 2026-11-16 — Auditoría contra la consigna y la corrección del Parcial 2
+
+El alumno pidió auditar el repo contra el PDF del TPI y los errores del Parcial 2 (hecho en grupo en otro repo). Hallazgos:
+
+| # | Hallazgo | Gravedad | Acción |
+| --- | --- | --- | --- |
+| A-01 | **Stack incompleto:** faltaban JWT, PostgreSQL, Redis y Docker/Compose. Es el mismo error que la cátedra corrigió en el Parcial 2 ("respetar el stack tecnológico"). La decisión DD-09 los había dejado afuera. | Crítica | C-03 (JWT + Redis) y C-04 (PostgreSQL + Docker). DD-09 revertida. |
+| A-02 | En PostgreSQL la protección de C-01 no alcanzaba: dos altas simultáneas se registraban ambas (9 de 10 rondas). | Crítica | `SELECT … FOR UPDATE` en C-04. |
+| A-03 | La API no tenía autenticación: cualquiera podía registrar turnos. | Alta | C-03. |
+| A-04 | Faltaba `frontend/package-lock.json`: la instalación no era reproducible. | Media | Agregado en C-04. |
+| A-05 | Consulta con el MCP Context7 sin evidencia. | Media | Pendiente del alumno (no se puede hacer desde el entorno del agente). |
+| A-06 | Guion, casos de Swagger y accesos directos no contemplaban login ni Docker. | Media | Actualizados en la carpeta del TPI. |
+
+## 2026-11-16 — C-03 `autenticar-personal-jwt`
+
+- RED: `ModuleNotFoundError: odontologia.autenticacion` (backend) y `ERR_MODULE_NOT_FOUND sesion.ts` (frontend).
+- GREEN: 62 pruebas de backend (con Redis real) y 17 de frontend.
+- Revisión con la skill (se le agregó el punto 10, Seguridad): sin bloqueantes. Archivado.
+
+## 2026-11-16 — C-04 `persistencia-postgresql-y-docker`
+
+- RED contra PostgreSQL 16 real: 11 fallas de concurrencia (turnos duplicados).
+- GREEN: `FOR UPDATE`; suite completa contra PostgreSQL + Redis tres veces seguidas.
+- Docker Compose validado con `docker compose config`; levantar los contenedores queda para la PC del alumno (sin acceso a Docker Hub en el entorno del agente). Archivado.
+
 ## Limitaciones conocidas (para no afirmar de más)
 
 - En el entorno del agente **no había acceso** a PyPI, npm ni a la CLI de OpenSpec. Por eso:
@@ -40,4 +65,6 @@ Esto resuelve las verificaciones de npm, build y OpenSpec que habían quedado pe
   - la estructura de `openspec/` se escribió siguiendo el formato de OpenSpec (luego validada en la PC del alumno, ver arriba);
   - `npm install` y `npm run build` se verificaron en la PC del alumno (ver arriba).
 - La consulta con el MCP Context7 está **pendiente** (ver `docs/skills-mcp/mcp-context7.md`).
+- `docker compose up --build` no se ejecutó en el entorno del agente.
+- Las pruebas de PostgreSQL y Redis del agente usaron psycopg y redis-py obtenidos de sus repositorios oficiales, por no tener acceso a PyPI.
 - Nada de esto acredita revisión humana: el alumno debe leer y verificar los artefactos.

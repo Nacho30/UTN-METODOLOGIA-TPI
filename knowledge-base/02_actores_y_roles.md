@@ -1,10 +1,22 @@
 # 02 — Actores y roles
 
-| Actor | Necesita | En C-01 / C-02 | Futuro |
+| Actor | Usuario ficticio | Rol | Necesita |
 | --- | --- | --- | --- |
-| Recepción | Dar turnos y ver la agenda | Usa `POST /turnos`, `GET /agenda` y la pantalla | Login (C-03), cancelar/reprogramar (C-04), formulario (C-06) |
-| Profesional | Ver su agenda | Puede filtrar la agenda por profesional | Ver sólo la suya (C-03) |
-| Administración | Mantener catálogo y usuarios | — (catálogo ficticio fijo) | C-03, C-05 |
-| Paciente | Asistir al turno | Sólo aparece como dato ficticio | Recordatorios simulados (C-08) |
+| Recepción | `recepcion` | `recepcion` | Dar turnos y ver la agenda |
+| Profesional | `profesional` | `profesional` | Ver la agenda |
+| Administración | `admin` | `administracion` | Todo lo anterior y, a futuro, mantener catálogo y usuarios |
+| Paciente | — | — | No usa el sistema; sólo aparece como dato ficticio |
 
-En esta entrega **no hay autenticación**: la API es local (127.0.0.1) y de demostración. La matriz de permisos se decide en C-03.
+Clave de demostración de los tres usuarios: `Clave-Demo-2026` (ficticia y pública a propósito, sólo para el sistema local).
+
+## Matriz de permisos (C-03, resuelve Q04)
+
+| Operación | Ruta | recepcion | profesional | administracion |
+| --- | --- | --- | --- | --- |
+| Registrar turno | `POST /turnos` | ✅ | ❌ 403 | ✅ |
+| Consultar agenda | `GET /agenda` | ✅ | ✅ | ✅ |
+| Ver catálogo | `GET /catalogo` | ✅ | ✅ | ✅ |
+| Ver mi usuario / salir | `GET /auth/yo`, `POST /auth/logout` | ✅ | ✅ | ✅ |
+| Estado del servicio | `GET /health` | Público | Público | Público |
+
+Los permisos se aplican **sólo en el backend** (`autenticacion.PERMISOS`). El frontend no decide nada.
