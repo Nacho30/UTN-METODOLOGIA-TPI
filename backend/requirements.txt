@@ -1,0 +1,6 @@
+# Backend del TPI — Python 3.12+
+fastapi>=0.115,<1
+uvicorn>=0.34,<1
+sqlalchemy>=2.0,<2.1
+# Sólo para pruebas (TestClient de FastAPI)
+httpx>=0.27,<1
