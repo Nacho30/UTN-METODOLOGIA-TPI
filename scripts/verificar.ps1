@@ -39,6 +39,17 @@ if (Get-Command openspec -ErrorAction SilentlyContinue) {
     Write-Host "OpenSpec CLI no instalado (npm install -g @fission-ai/openspec). Se omite." -ForegroundColor Yellow
 }
 
+Paso "Docker Compose (sintaxis)"
+if (Get-Command docker -ErrorAction SilentlyContinue) {
+    $env:POSTGRES_PASSWORD = "solo-para-validar"
+    $env:ODONTOLOGIA_JWT_SECRETO = "solo-para-validar-la-sintaxis-del-compose"
+    docker compose config -q
+    if ($LASTEXITCODE -ne 0) { $fallos += "docker compose" } else { Write-Host "docker-compose.yml valido" }
+    Remove-Item Env:POSTGRES_PASSWORD, Env:ODONTOLOGIA_JWT_SECRETO
+} else {
+    Write-Host "Docker no instalado. Se omite." -ForegroundColor Yellow
+}
+
 if ($fallos.Count -eq 0) {
     Write-Host "`nTODO OK" -ForegroundColor Green
 } else {

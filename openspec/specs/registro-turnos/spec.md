@@ -1,7 +1,7 @@
 # registro-turnos Specification
 
 ## Purpose
-Permitir que Recepción registre turnos del consultorio sin ocupar al mismo tiempo al mismo profesional ni al mismo box, con validación explícita de los datos y errores claros. Origen: change C-01 `registrar-turno-sin-solapamientos`.
+Permitir que Recepción registre turnos del consultorio sin ocupar al mismo tiempo al mismo profesional ni al mismo box, con validación explícita de los datos y errores claros. Origen: change C-01 `registrar-turno-sin-solapamientos`; modificada por C-03 (sesión obligatoria) y C-04 (PostgreSQL).
 
 ## Requirements
 
@@ -86,18 +86,27 @@ Cada turno SHALL ocupar el intervalo semiabierto `[inicio, fin)`. El sistema MUS
 - **THEN** se detecta `conflicto_profesional`, porque es el mismo instante
 
 ### Requirement: Altas simultáneas serializadas
-La verificación de solapamientos y la inserción SHALL ejecutarse en la misma transacción. Con SQLite la transacción SHALL comenzar con `BEGIN IMMEDIATE`, de modo que dos altas simultáneas que compiten por el mismo recurso no puedan registrarse ambas.
+La verificación de solapamientos y la inserción SHALL ejecutarse en la misma transacción. Con SQLite la transacción SHALL comenzar con `BEGIN IMMEDIATE`; con PostgreSQL SHALL bloquear con `SELECT … FOR UPDATE` la fila del profesional y luego la del box. En ambos casos dos altas simultáneas que compiten por el mismo recurso MUST NOT registrarse ambas.
 
 #### Scenario: Dos altas al mismo tiempo
 - **WHEN** dos conexiones independientes intentan registrar a la vez el mismo profesional en el mismo horario
 - **THEN** una se registra, la otra recibe `conflicto_profesional` y la agenda tiene un solo turno
 
+#### Scenario: Mismo box al mismo tiempo
+- **WHEN** dos conexiones independientes intentan registrar a la vez el mismo box con distintos profesionales
+- **THEN** una se registra y la otra recibe `conflicto_box`
+
 ### Requirement: Contrato HTTP
-La API SHALL exponer `POST /turnos` y `GET /health`. Todo error SHALL responder un JSON `{error, campo, mensaje}`; un cuerpo que no sea JSON u objeto SHALL responder 422 `entrada_invalida`.
+La API SHALL exponer `POST /turnos` y `GET /health`. `POST /turnos` SHALL exigir una sesión válida con rol `recepcion` o `administracion` (ver `autenticacion-personal`); el permiso SHALL evaluarse antes de leer el cuerpo. Todo error SHALL responder un JSON `{error, campo, mensaje}`; un cuerpo que no sea JSON u objeto SHALL responder 422 `entrada_invalida`.
 
 #### Scenario: JSON mal formado
+- **GIVEN** una sesión de `recepcion`
 - **WHEN** el cuerpo de `POST /turnos` no es JSON válido
 - **THEN** se responde 422 `{"error": "entrada_invalida", "campo": null, …}`
+
+#### Scenario: Sin sesión
+- **WHEN** se hace `POST /turnos` sin token
+- **THEN** se responde 401 `no_autenticado` y no se registra nada
 
 #### Scenario: Salud del servicio
 - **WHEN** se consulta `GET /health`

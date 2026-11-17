@@ -1,0 +1,50 @@
+# Sistema completo con Docker (C-04): PostgreSQL + Redis + backend + frontend.
+# Uso:  copiar .env.example a .env, completar los valores y ejecutar
+#       docker compose up --build
+# Pantalla: http://localhost:8080   ·   API/Swagger: http://localhost:8000/docs
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: odontologia
+      POSTGRES_USER: odontologia
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definir POSTGRES_PASSWORD en .env}
+    volumes:
+      - datos_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odontologia -d odontologia"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      ODONTOLOGIA_DB_URL: postgresql+psycopg://odontologia:${POSTGRES_PASSWORD}@db:5432/odontologia
+      ODONTOLOGIA_REDIS_URL: redis://redis:6379/0
+      ODONTOLOGIA_JWT_SECRETO: ${ODONTOLOGIA_JWT_SECRETO:?Definir ODONTOLOGIA_JWT_SECRETO en .env}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:8080:80"
+
+volumes:
+  datos_postgres:

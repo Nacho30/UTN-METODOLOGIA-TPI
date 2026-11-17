@@ -106,7 +106,14 @@ def registrar_turno(sesiones: sessionmaker, datos) -> dict:
 
     with sesiones() as sesion, sesion.begin():
         for campo, modelo in RECURSOS:
-            if sesion.get(modelo, limpio[campo]) is None:
+            consulta = select(modelo.id).where(modelo.id == limpio[campo])
+            if modelo is not Paciente:
+                # C-04: en PostgreSQL bloquea la fila del profesional y del box hasta el
+                # COMMIT, así otra alta del mismo recurso espera y luego ve este turno.
+                # Siempre se bloquea profesional y después box: no hay ciclos (deadlock).
+                # SQLite ignora FOR UPDATE; ahí serializa BEGIN IMMEDIATE (C-01).
+                consulta = consulta.with_for_update()
+            if sesion.scalar(consulta) is None:
                 raise ErrorTurno(
                     "recurso_desconocido", campo,
                     f"No existe {campo} '{limpio[campo]}' en el catálogo ficticio.",

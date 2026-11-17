@@ -3,15 +3,15 @@
 Todos los datos son ficticios (ver odontologia/datos_demo.py).
 """
 
-import tempfile
 import threading
 import unittest
 from datetime import datetime, timezone
-from pathlib import Path
 
-from odontologia.db import crear_motor, crear_sesiones, preparar_agenda
+from odontologia.db import Base, crear_motor, crear_sesiones, preparar_agenda
 from odontologia.errores import ErrorTurno
 from odontologia.servicio import registrar_turno
+
+from .apoyo import URL_EXTERNA, BaseDeDatosDePrueba
 
 
 def turno(**cambios):
@@ -28,15 +28,15 @@ def turno(**cambios):
 
 class BaseAgenda(unittest.TestCase):
     def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        url = f"sqlite:///{Path(self._tmp.name) / 'agenda.db'}"
-        self.motor = crear_motor(url)
+        self.base = BaseDeDatosDePrueba()
+        self.motor = crear_motor(self.base.url)
+        if URL_EXTERNA:
+            Base.metadata.drop_all(self.motor)
         preparar_agenda(self.motor)
         self.sesiones = crear_sesiones(self.motor)
 
     def tearDown(self):
-        self.motor.dispose()
-        self._tmp.cleanup()
+        self.base.limpiar(self.motor)
 
     def registrar(self, **cambios):
         return registrar_turno(self.sesiones, turno(**cambios))
@@ -174,28 +174,56 @@ class Solapamientos(BaseAgenda):
 
 
 class Concurrencia(BaseAgenda):
-    def test_dos_altas_simultaneas_del_mismo_profesional(self):
-        barrera = threading.Barrier(2)
+    """Dos conexiones independientes compiten por el mismo recurso.
+
+    Se repite en varios días para que una carrera no pase desapercibida por suerte.
+    Con SQLite la protección es BEGIN IMMEDIATE (C-01); con PostgreSQL, el
+    bloqueo de filas SELECT ... FOR UPDATE (C-04).
+    """
+
+    RONDAS = 5
+
+    def competir(self, pedidos):
+        barrera = threading.Barrier(len(pedidos))
         resultados = []
 
-        def intentar(box):
+        def intentar(datos):
             sesiones = crear_sesiones(self.motor)
             barrera.wait()
             try:
-                registrar_turno(sesiones, turno(box_id=box))
+                registrar_turno(sesiones, datos)
                 resultados.append("ok")
             except ErrorTurno as e:
                 resultados.append(e.codigo)
 
-        hilos = [threading.Thread(target=intentar, args=(b,)) for b in ("BOX-1", "BOX-2")]
+        hilos = [threading.Thread(target=intentar, args=(d,)) for d in pedidos]
         for h in hilos:
             h.start()
         for h in hilos:
             h.join(timeout=15)
-        self.assertEqual(sorted(resultados), ["conflicto_profesional", "ok"])
+        return sorted(resultados)
+
+    def test_dos_altas_simultaneas_del_mismo_profesional(self):
+        for dia in range(1, self.RONDAS + 1):
+            with self.subTest(dia=dia):
+                horario = {"inicio": f"2026-12-{dia:02d}T09:00:00-03:00", "fin": f"2026-12-{dia:02d}T09:30:00-03:00"}
+                resultados = self.competir([turno(box_id="BOX-1", **horario),
+                                            turno(box_id="BOX-2", paciente_id="PAC-002", **horario)])
+                self.assertEqual(resultados, ["conflicto_profesional", "ok"])
         from odontologia.db import Turno
         with self.sesiones() as s:
-            self.assertEqual(s.query(Turno).count(), 1)
+            self.assertEqual(s.query(Turno).count(), self.RONDAS)
+
+    def test_dos_altas_simultaneas_del_mismo_box(self):
+        for dia in range(1, self.RONDAS + 1):
+            with self.subTest(dia=dia):
+                horario = {"inicio": f"2026-12-{dia:02d}T10:00:00-03:00", "fin": f"2026-12-{dia:02d}T10:30:00-03:00"}
+                resultados = self.competir([turno(profesional_id="PRO-001", **horario),
+                                            turno(profesional_id="PRO-002", paciente_id="PAC-002", **horario)])
+                self.assertEqual(resultados, ["conflicto_box", "ok"])
+        from odontologia.db import Turno
+        with self.sesiones() as s:
+            self.assertEqual(s.query(Turno).count(), self.RONDAS)
 
 
 if __name__ == "__main__":
