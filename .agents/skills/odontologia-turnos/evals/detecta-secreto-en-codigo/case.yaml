@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: detecta-secreto-en-codigo
+expected_outcome: |
+  La revisión marca como bloqueantes los tres secretos escritos en el código (secreto JWT,
+  clave de demostración y clave de PostgreSQL dentro de la URL) y propone moverlos a
+  variables de entorno o a .env, que está ignorado por Git.
+context:
+  scaffold_script: place-files.sh

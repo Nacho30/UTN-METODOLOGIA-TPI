@@ -15,7 +15,15 @@ Sistema para que el personal de un consultorio odontológico **ficticio** regist
 | **C-03** `autenticar-personal-jwt` | Login con JWT, permisos por rol y cierre de sesión con Redis; pantalla de ingreso | JWT, Redis | ✅ Archivado |
 | **C-04** `persistencia-postgresql-y-docker` | PostgreSQL sin dobles reservas simultáneas y todo el sistema con Docker Compose | PostgreSQL, Docker | ✅ Archivado |
 
-Plan completo (C-05 a C-08) en [ROADMAP.md](ROADMAP.md).
+## Qué está completo y qué queda pendiente
+
+| Estado | Qué |
+| --- | --- |
+| ✅ **Completo, probado y archivado** | C-01, C-02, C-03 y C-04 (tabla de arriba). 65 pruebas de backend y 17 de frontend. |
+| ⏳ **Pendiente (no implementado)** | C-05 cancelar y reprogramar turnos · C-06 administrar pacientes · C-07 formulario de alta en la pantalla · C-08 recordatorios. Ver [ROADMAP.md](ROADMAP.md). |
+| ⚠️ **Límites del alcance actual** | No hay alta de turnos desde la pantalla (se hace por API/Swagger), ni alta de usuarios, ni cancelación. Pacientes, profesionales y boxes son un catálogo ficticio fijo. |
+
+> **Modalidad:** el TPI se presenta de forma individual en este repositorio nuevo, con autorización del docente. El trabajo grupal del Parcial 2 está en otro repositorio y no se copió: este proyecto se rehízo desde cero.
 
 ## Stack
 
@@ -37,7 +45,7 @@ SQLite queda como base por defecto para desarrollar sin instalar nada; PostgreSQ
 │   └── changes/archive/       C-01 a C-04 con proposal, design, specs y tasks
 ├── backend/
 │   ├── odontologia/           api.py · servicio.py · autenticacion.py · db.py · errores.py · datos_demo.py
-│   ├── tests/                 62 pruebas (unittest)
+│   ├── tests/                 65 pruebas (unittest)
 │   └── Dockerfile
 ├── frontend/                  React + TS + Vite: Ingreso y Agenda del día (17 pruebas), Dockerfile y nginx.conf
 ├── .agents/skills/            Skill propia: odontologia-turnos
@@ -57,7 +65,15 @@ SQLite queda como base por defecto para desarrollar sin instalar nada; PostgreSQ
 | `profesional` | Profesional | ❌ (403) | ✅ |
 | `admin` | Administración | ✅ | ✅ |
 
-Clave de los tres: **`Clave-Demo-2026`**. Es ficticia y pública a propósito; en la base sólo se guarda su hash.
+La clave **no está en el repositorio**: la elegís vos en la variable `ODONTOLOGIA_CLAVE_DEMO` (mínimo 8 caracteres, inventada, nunca una clave real). Al arrancar, el backend crea los tres usuarios y guarda sólo el hash de esa clave. Sin la variable no se crean usuarios y nadie puede iniciar sesión.
+
+## Datos ficticios
+
+No hace falta cargar datos a mano. Al arrancar, el backend crea (si no existen):
+
+- **Catálogo:** pacientes `PAC-001` y `PAC-002`, profesionales `PRO-001` y `PRO-002`, boxes `BOX-1` y `BOX-2` (`backend/odontologia/datos_demo.py`).
+- **Usuarios:** `recepcion`, `profesional` y `admin`, con la clave de `ODONTOLOGIA_CLAVE_DEMO`.
+- **Turnos:** ninguno. Se cargan con `POST /turnos` (ver "Demo rápida"). Para volver a empezar sin Docker, borrar `backend/odontologia.db` con el servidor detenido; con Docker, `docker compose down -v`.
 
 ## Opción A — Sin Docker (desarrollo)
 
@@ -73,6 +89,8 @@ uvicorn odontologia.api:crear_app --factory --reload
 ```
 
 - API: http://127.0.0.1:8000 · Swagger: http://127.0.0.1:8000/docs
+- Antes de `uvicorn`, definir la clave de los usuarios ficticios:
+  Windows PowerShell `$env:ODONTOLOGIA_CLAVE_DEMO = "una-clave-inventada"` · Linux/macOS `export ODONTOLOGIA_CLAVE_DEMO=una-clave-inventada`
 - Usa SQLite (`odontologia.db`, se crea sola) y sesiones cerradas en memoria.
 - Sin `ODONTOLOGIA_JWT_SECRETO` se genera un secreto temporal (aparece una advertencia y las sesiones se pierden al reiniciar).
 
@@ -91,7 +109,7 @@ Requisito: Docker Desktop.
 
 ```bash
 cp .env.example .env        # Windows: copy .env.example .env
-# Completar en .env: POSTGRES_PASSWORD y ODONTOLOGIA_JWT_SECRETO (≥ 32 caracteres)
+# Completar en .env: POSTGRES_PASSWORD, ODONTOLOGIA_JWT_SECRETO (≥ 32 caracteres) y ODONTOLOGIA_CLAVE_DEMO
 #   python -c "import secrets; print(secrets.token_urlsafe(48))"
 docker compose up --build
 ```
@@ -103,7 +121,7 @@ docker compose up --build
 ## Pruebas
 
 ```bash
-# Backend: 62 pruebas (C-01 a C-04) con SQLite
+# Backend: 65 pruebas (C-01 a C-04) con SQLite
 cd backend
 python -m unittest discover -s tests -t . -v
 
@@ -127,7 +145,7 @@ Sin `ODONTOLOGIA_TEST_REDIS_URL`, las 3 pruebas de Redis se omiten. En Windows, 
 
 ## Demo rápida en Swagger
 
-1. **POST /auth/login** con `{"usuario": "recepcion", "clave": "Clave-Demo-2026"}` → copiar `access_token`.
+1. **POST /auth/login** con `{"usuario": "recepcion", "clave": "<tu ODONTOLOGIA_CLAVE_DEMO>"}` → copiar `access_token`.
 2. Botón **Authorize** → pegar el token.
 3. Probar:
 

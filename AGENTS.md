@@ -35,7 +35,7 @@ Es el stack que fijó la cátedra. No se quita ni se reemplaza ninguna tecnolog�
 
 ## Reglas duras
 
-- **R-01 Datos:** sólo datos ficticios. Nunca datos reales de pacientes, secretos, tokens ni contraseñas reales en el repo. La única clave admitida es la de demostración ficticia (`Clave-Demo-2026`); el secreto JWT y la clave de PostgreSQL van en `.env` o variables de entorno.
+- **R-01 Datos:** sólo datos ficticios. Nunca datos reales de pacientes, secretos, tokens ni contraseñas reales en el repo. El secreto JWT, la clave de PostgreSQL y la clave de los usuarios ficticios (`ODONTOLOGIA_CLAVE_DEMO`) van sólo en `.env` o variables de entorno; tampoco se muestran en la entrega ni en el video.
 - **R-02 Alcance:** no implementar nada fuera del `proposal.md` del change activo. Sin sobreturnos.
 - **R-03 Capas:** reglas de negocio sólo en `backend/odontologia/servicio.py` y permisos sólo en `backend/odontologia/autenticacion.py`; código de backend sólo en `backend/` y de interfaz sólo en `frontend/`.
 - **R-04 Contrato:** no cambiar en silencio el intervalo `[inicio, fin)`, el uso de UTC, la zona UTC-03:00, los códigos de error ni la matriz de permisos. Un cambio de contrato requiere un change nuevo.

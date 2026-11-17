@@ -58,6 +58,19 @@ El alumno pidió auditar el repo contra el PDF del TPI y los errores del Parcial
 - GREEN: `FOR UPDATE`; suite completa contra PostgreSQL + Redis tres veces seguidas.
 - Docker Compose validado con `docker compose config`; levantar los contenedores queda para la PC del alumno (sin acceso a Docker Hub en el entorno del agente). Archivado.
 
+## 2026-11-16 — Segunda auditoría, contra el PDF de la consigna
+
+Con el PDF del TPI a mano se revisó punto por punto. Hallazgos nuevos:
+
+| # | Requisito del PDF | Hallazgo | Acción |
+| --- | --- | --- | --- |
+| A-07 | "Trabajen sobre el mismo proyecto y repositorio del Parcial 2 (...) Continúen con la modalidad y el equipo" | El TPI se hace solo y en un repo nuevo. | El alumno indicó que **el docente lo autorizó**. Se aclara en el README. |
+| A-08 | "Mantengan claves, tokens y contraseñas fuera del repositorio, de la entrega y del video" | La clave de demostración estaba escrita en el código y en el README. | Corregido: se lee de `ODONTOLOGIA_CLAVE_DEMO`; las pruebas generan una al azar (C-03, design D3b). |
+| A-09 | El README debe indicar "qué está completo y qué queda pendiente" y la "preparación de datos ficticios" | No había una sección explícita. | Secciones agregadas al README. |
+| A-10 | Skill: "cómo la crearon —incluida la skill creadora utilizada—" | La skill decía basarse en la guía de skill-creator, pero no había evidencia de su uso. | Se usó `skill-creator` de verdad: `quick_validate`, descripción más explícita, el "por qué" de cada punto y 2 casos de prueba en `evals/` (ver `docs/skills-mcp/skill-propia.md`). |
+| A-11 | "Archivar no sustituye probar (...) comprueben también el funcionamiento real" | Docker Compose y la pantalla de login no se ejecutaron todavía en la PC del alumno. | Pendiente de verificar en la PC del alumno (tiene Docker Desktop) antes de entregar. |
+| A-12 | MCP: "cómo comprobaron la conexión y el uso de una herramienta real" | Sin evidencia. | El alumno conecta Context7; la consulta se documenta en `docs/skills-mcp/mcp-context7.md`. |
+
 ## Limitaciones conocidas (para no afirmar de más)
 
 - En el entorno del agente **no había acceso** a PyPI, npm ni a la CLI de OpenSpec. Por eso:

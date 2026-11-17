@@ -7,7 +7,7 @@
 | Administración | `admin` | `administracion` | Todo lo anterior y, a futuro, mantener catálogo y usuarios |
 | Paciente | — | — | No usa el sistema; sólo aparece como dato ficticio |
 
-Clave de demostración de los tres usuarios: `Clave-Demo-2026` (ficticia y pública a propósito, sólo para el sistema local).
+La clave de los tres usuarios ficticios se define fuera del repositorio, en `ODONTOLOGIA_CLAVE_DEMO` (variable de entorno o `.env`); en la base sólo queda su hash.
 
 ## Matriz de permisos (C-03, resuelve Q04)
 

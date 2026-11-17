@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: detecta-menor-o-igual
+expected_outcome: |
+  La revisión marca como bloqueante el punto del intervalo [inicio, fin): con <= y >=
+  dos turnos pegados (09:00-09:30 y 09:30-10:00) pasarían a chocar, lo que contradice
+  la regla de adyacencia permitida. Recomienda no archivar.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,6 @@
+--- a/backend/odontologia/servicio.py
++++ b/backend/odontologia/servicio.py
+@@ def _hay_solapamiento(sesion, columna, valor, inicio, fin) -> bool:
+-    consulta = select(Turno.id).where(columna == valor, Turno.inicio < fin, Turno.fin > inicio).limit(1)
++    # Más seguro: también bloquear cuando los turnos se tocan
++    consulta = select(Turno.id).where(columna == valor, Turno.inicio <= fin, Turno.fin >= inicio).limit(1)
