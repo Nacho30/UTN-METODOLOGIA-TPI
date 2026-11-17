@@ -1,0 +1,15 @@
+schema: spec-driven
+
+context: |
+  Proyecto: sistema de agenda de turnos para un consultorio odontológico ficticio
+  (TPI de Metodología I, UTN, comisión 3).
+  Stack: Python 3.12+, FastAPI, SQLAlchemy (SQLite por defecto), React + TypeScript + Vite.
+  Language: es. Todos los artefactos se escriben en español.
+  Mantener en inglés los encabezados estructurales de OpenSpec y las palabras SHALL/MUST.
+  Datos siempre ficticios. Reglas de negocio sólo en backend/.
+
+rules:
+  proposal:
+    - Indicar qué queda fuera del alcance.
+  tasks:
+    - Cada tarea de comportamiento sigue RED → GREEN → refactor y se marca sólo con la prueba ejecutada.
