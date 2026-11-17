@@ -60,3 +60,7 @@ $ curl -o /dev/null -w "%{http_code}" localhost:8123/docs
 | Contrato HTTP | Clase `ApiTurnos` (201, 404, 409, 422, JSON mal formado, health) |
 
 Lint: `ruff check odontologia tests` → `All checks passed!`
+
+## Verificación en la PC del alumno
+
+2026-11-16, Windows, `powershell -ExecutionPolicy Bypass -File scripts\verificar.ps1`: backend `Ran 38 tests ... OK`, frontend con pruebas y build correctos, `openspec validate --all --strict` 2 passed / 0 failed. Resultado: `TODO OK`.

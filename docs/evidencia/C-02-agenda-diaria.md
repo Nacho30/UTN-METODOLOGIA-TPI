@@ -30,7 +30,7 @@ $ npm test        # tsx --test src/agenda.test.ts
 # fail 0
 ```
 
-`src/agenda.ts` y `src/agenda.test.ts` pasaron `tsc --strict` en el entorno del agente. En ese entorno **no** se pudo correr `npm install`, así que `npm run build` y la pantalla en el navegador se verifican en la PC del alumno (ver README, "Verificar todo").
+`src/agenda.ts` y `src/agenda.test.ts` pasaron `tsc --strict` en el entorno del agente. En ese entorno no se pudo correr `npm install`; `npm run build` se verificó luego en la PC del alumno (ver al final).
 
 ## Prueba manual de la API
 
@@ -68,3 +68,7 @@ Realizada por el agente antes de archivar.
 | 9 | Alcance | ✅ | Sin alta desde la pantalla (queda para C-06) |
 
 **Bloqueantes:** ninguno.
+
+## Verificación en la PC del alumno
+
+2026-11-16, Windows, `powershell -ExecutionPolicy Bypass -File scripts\verificar.ps1`: backend `Ran 38 tests ... OK`, frontend con pruebas y build correctos, `openspec validate --all --strict` 2 passed / 0 failed. Resultado: `TODO OK`.

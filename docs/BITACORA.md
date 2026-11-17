@@ -22,11 +22,22 @@ Registro honesto de cómo se construyó el proyecto.
 - Revisión con la skill `odontologia-turnos`: sin bloqueantes.
 - Archivado en `openspec/changes/archive/2026-11-16-consultar-agenda-diaria/` y spec sincronizada en `openspec/specs/agenda-diaria/`.
 
+## 2026-11-16 — Verificación en la PC del alumno (Windows)
+
+El alumno clonó el repo y ejecutó `scripts\verificar.ps1` (PowerShell 5.1):
+
+- Backend: `Ran 38 tests ... OK`.
+- Frontend: pruebas sin fallas y `tsc --noEmit && vite build` correcto (Vite 6.4.6).
+- OpenSpec: `openspec validate --all --strict` → `agenda-diaria` y `registro-turnos`, 2 passed, 0 failed. Sin changes activos.
+- Resultado final del script: `TODO OK`.
+
+Esto resuelve las verificaciones de npm, build y OpenSpec que habían quedado pendientes.
+
 ## Limitaciones conocidas (para no afirmar de más)
 
 - En el entorno del agente **no había acceso** a PyPI, npm ni a la CLI de OpenSpec. Por eso:
   - las pruebas de backend se corrieron con las librerías obtenidas de sus repositorios oficiales (ver evidencia);
-  - la estructura de `openspec/` se escribió siguiendo el formato de OpenSpec; queda verificarla con `openspec validate --all --strict` en la PC del alumno;
-  - `npm install`, `npm run build` y la pantalla en el navegador quedan para verificar en la PC del alumno.
+  - la estructura de `openspec/` se escribió siguiendo el formato de OpenSpec (luego validada en la PC del alumno, ver arriba);
+  - `npm install` y `npm run build` se verificaron en la PC del alumno (ver arriba).
 - La consulta con el MCP Context7 está **pendiente** (ver `docs/skills-mcp/mcp-context7.md`).
 - Nada de esto acredita revisión humana: el alumno debe leer y verificar los artefactos.
