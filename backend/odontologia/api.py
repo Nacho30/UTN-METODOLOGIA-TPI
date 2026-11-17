@@ -9,12 +9,12 @@ import json
 import os
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.responses import JSONResponse
 
 from .db import crear_motor, crear_sesiones, preparar_agenda
 from .errores import ErrorTurno
-from .servicio import registrar_turno
+from .servicio import NOMBRE_ZONA, consultar_agenda, listar_catalogo, registrar_turno
 
 URL_POR_DEFECTO = "sqlite:///./odontologia.db"
 
@@ -56,7 +56,7 @@ def crear_app(url_db: str | None = None) -> FastAPI:
 
     app = FastAPI(
         title="Sistema odontológico — Agenda de turnos",
-        version="0.1.0",
+        version="0.2.0",
         description="API local del TPI de Metodología I. Sólo datos ficticios.",
     )
     app.state.motor = motor
@@ -80,5 +80,22 @@ def crear_app(url_db: str | None = None) -> FastAPI:
             raise ErrorTurno("entrada_invalida", None, "El cuerpo no es JSON válido.") from None
         return serializar(registrar_turno(sesiones, datos))
 
+    @app.get("/agenda")
+    def agenda(
+        fecha: str | None = Query(None, description="Día local del consultorio, AAAA-MM-DD", examples=["2026-12-01"]),
+        profesional_id: str | None = Query(None, examples=["PRO-001"]),
+        box_id: str | None = Query(None, examples=["BOX-1"]),
+    ):
+        turnos = consultar_agenda(sesiones, fecha, profesional_id=profesional_id, box_id=box_id)
+        return {
+            "fecha": fecha,
+            "zona_horaria": NOMBRE_ZONA,
+            "turnos": [serializar(t) for t in turnos],
+        }
+
+    @app.get("/catalogo")
+    def catalogo():
+        return listar_catalogo(sesiones)
 
     return app
+

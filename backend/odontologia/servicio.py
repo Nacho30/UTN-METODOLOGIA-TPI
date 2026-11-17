@@ -1,6 +1,7 @@
 """Reglas de negocio de la agenda. La API sólo adapta HTTP a estas funciones."""
 
-from datetime import datetime, timezone
+import re
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
@@ -9,6 +10,10 @@ from .db import Box, Paciente, Profesional, Turno
 from .errores import ErrorTurno
 
 LARGO_MAXIMO_ID = 64
+# El consultorio (ficticio) opera en hora de Argentina, UTC-03:00 sin horario de verano.
+ZONA_CONSULTORIO = timezone(timedelta(hours=-3))
+NOMBRE_ZONA = "-03:00"
+FORMATO_FECHA = re.compile(r"\d{4}-\d{2}-\d{2}")
 RECURSOS = (
     ("paciente_id", Paciente),
     ("profesional_id", Profesional),
@@ -127,3 +132,67 @@ def registrar_turno(sesiones: sessionmaker, datos) -> dict:
         sesion.flush()
         return turno_a_dict(nuevo)
 
+
+# ---------------------------------------------------------------- C-02
+
+def _validar_fecha(valor) -> date:
+    if not isinstance(valor, str) or not FORMATO_FECHA.fullmatch(valor):
+        raise _invalida("fecha", "fecha es obligatoria y debe tener el formato AAAA-MM-DD.")
+    try:
+        return date.fromisoformat(valor)
+    except ValueError:
+        raise _invalida("fecha", f"La fecha {valor} no existe en el calendario.") from None
+
+
+def consultar_agenda(sesiones: sessionmaker, fecha, profesional_id=None, box_id=None) -> list[dict]:
+    """Turnos que ocupan parte del día local `fecha`, ordenados por inicio e id.
+
+    El día es [00:00, 24:00) en ZONA_CONSULTORIO. Un turno que cruza la
+    medianoche aparece en los dos días que toca.
+    """
+    dia = _validar_fecha(fecha)
+    filtros = {}
+    for campo, valor in (("profesional_id", profesional_id), ("box_id", box_id)):
+        if valor is not None:
+            filtros[campo] = _validar_id({campo: valor}, campo)
+
+    desde = datetime.combine(dia, datetime.min.time(), ZONA_CONSULTORIO)
+    hasta = desde + timedelta(days=1)
+    desde, hasta = a_utc_naive(desde), a_utc_naive(hasta)
+
+    with sesiones() as sesion:
+        for campo, modelo in (("profesional_id", Profesional), ("box_id", Box)):
+            if campo in filtros and sesion.get(modelo, filtros[campo]) is None:
+                raise ErrorTurno(
+                    "recurso_desconocido", campo,
+                    f"No existe {campo} '{filtros[campo]}' en el catálogo ficticio.",
+                )
+        consulta = (
+            select(Turno, Paciente.nombre, Profesional.nombre, Box.nombre)
+            .join(Paciente, Paciente.id == Turno.paciente_id)
+            .join(Profesional, Profesional.id == Turno.profesional_id)
+            .join(Box, Box.id == Turno.box_id)
+            .where(Turno.inicio < hasta, Turno.fin > desde)
+            .order_by(Turno.inicio, Turno.id)
+        )
+        if "profesional_id" in filtros:
+            consulta = consulta.where(Turno.profesional_id == filtros["profesional_id"])
+        if "box_id" in filtros:
+            consulta = consulta.where(Turno.box_id == filtros["box_id"])
+
+        return [
+            {**turno_a_dict(turno), "paciente_nombre": paciente,
+             "profesional_nombre": profesional, "box_nombre": box}
+            for turno, paciente, profesional, box in sesion.execute(consulta)
+        ]
+
+
+def listar_catalogo(sesiones: sessionmaker) -> dict:
+    """Profesionales y boxes ficticios, para poblar los filtros del frontend."""
+    with sesiones() as sesion:
+        return {
+            "profesionales": [{"id": p.id, "nombre": p.nombre}
+                              for p in sesion.scalars(select(Profesional).order_by(Profesional.id))],
+            "boxes": [{"id": b.id, "nombre": b.nombre}
+                      for b in sesion.scalars(select(Box).order_by(Box.id))],
+        }
