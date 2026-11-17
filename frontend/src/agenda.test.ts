@@ -74,6 +74,7 @@ describe("mensajeDeError", () => {
 
   it("tiene textos por defecto y para backend caído", () => {
     assert.equal(mensajeDeError({ error: "entrada_invalida" }), "Revisá los datos ingresados.");
+    assert.equal(mensajeDeError({ error: "sin_permiso" }), "Tu rol no tiene permiso para esta operación.");
     assert.match(mensajeDeError(null), /backend/);
   });
 });

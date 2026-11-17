@@ -77,10 +77,12 @@ export function hoyEnConsultorio(ahora: Date = new Date()): string {
 const MENSAJES: Record<string, string> = {
   entrada_invalida: "Revisá los datos ingresados.",
   recurso_desconocido: "El profesional o box elegido no existe.",
+  credenciales_invalidas: "Usuario o clave incorrectos.",
+  sin_permiso: "Tu rol no tiene permiso para esta operación.",
 };
 
 /** Mensaje para mostrar a Recepción a partir del error del backend. */
 export function mensajeDeError(error: Partial<ErrorApi> | null | undefined): string {
-  if (!error || !error.error) return "No se pudo consultar la agenda. ¿Está corriendo el backend?";
+  if (!error || !error.error) return "No se pudo conectar con el sistema. ¿Está corriendo el backend?";
   return error.mensaje || MENSAJES[error.error] || "Ocurrió un error inesperado.";
 }

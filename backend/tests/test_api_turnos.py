@@ -1,12 +1,8 @@
-"""C-01 — Adaptador HTTP de POST /turnos (FastAPI)."""
+"""C-01 — Adaptador HTTP de POST /turnos (FastAPI). Desde C-03 requiere sesión."""
 
-import tempfile
 import unittest
-from pathlib import Path
 
-from fastapi.testclient import TestClient
-
-from odontologia.api import crear_app
+from .apoyo import BaseDeDatosDePrueba, cliente_con_sesion, nueva_app
 
 TURNO = {
     "paciente_id": "PAC-001",
@@ -19,13 +15,12 @@ TURNO = {
 
 class ApiTurnos(unittest.TestCase):
     def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.app = crear_app(f"sqlite:///{Path(self._tmp.name) / 'api.db'}")
-        self.cliente = TestClient(self.app)
+        self.base = BaseDeDatosDePrueba()
+        self.app = nueva_app(self.base)
+        self.cliente = cliente_con_sesion(self.app, "recepcion")
 
     def tearDown(self):
-        self.app.state.motor.dispose()
-        self._tmp.cleanup()
+        self.base.limpiar(self.app.state.motor)
 
     def test_health(self):
         r = self.cliente.get("/health")

@@ -1,8 +1,10 @@
-"""Persistencia con SQLAlchemy (SQLite por defecto).
+"""Persistencia con SQLAlchemy.
 
-Decisión de C-01: en SQLite cada transacción empieza con BEGIN IMMEDIATE, así
-la consulta de solapamientos y el INSERT quedan serializados entre conexiones
-que usan el mismo archivo.
+- SQLite (por defecto, C-01): cada transacción empieza con BEGIN IMMEDIATE, así
+  la consulta de solapamientos y el INSERT quedan serializados entre conexiones
+  que usan el mismo archivo.
+- PostgreSQL (C-04): URL `postgresql+psycopg://...`; la serialización la da el
+  bloqueo de filas SELECT ... FOR UPDATE en servicio.registrar_turno.
 """
 
 from datetime import datetime
@@ -44,6 +46,16 @@ class Box(Base):
     nombre: Mapped[str] = mapped_column(String(120))
 
 
+class Usuario(Base):
+    """Personal del consultorio (C-03). Sólo se guarda el hash de la clave."""
+
+    __tablename__ = "usuarios"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(120))
+    rol: Mapped[str] = mapped_column(String(32))
+    clave_hash: Mapped[str] = mapped_column(String(200))
+
+
 class Turno(Base):
     """Turno con intervalo semiabierto [inicio, fin), guardado en UTC sin tzinfo."""
 
@@ -58,7 +70,7 @@ class Turno(Base):
 
 def crear_motor(url: str) -> Engine:
     if not url.startswith("sqlite"):
-        return create_engine(url)
+        return create_engine(url, pool_pre_ping=True)
 
     motor = create_engine(url, connect_args={"timeout": 5, "check_same_thread": False})
 
@@ -90,3 +102,7 @@ def preparar_agenda(motor: Engine) -> None:
             for id_, nombre in filas:
                 if id_ not in existentes:
                     sesion.add(modelo(id=id_, nombre=nombre))
+        usuarios = set(sesion.scalars(select(Usuario.id)))
+        for id_, nombre, rol, clave_hash in datos_demo.USUARIOS:
+            if id_ not in usuarios:
+                sesion.add(Usuario(id=id_, nombre=nombre, rol=rol, clave_hash=clave_hash))

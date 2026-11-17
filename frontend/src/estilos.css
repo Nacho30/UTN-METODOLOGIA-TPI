@@ -29,3 +29,17 @@ td:first-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .estado { padding: 16px; background: #fff; border: 1px dashed var(--borde); border-radius: 6px; }
 .estado.error { color: var(--error); border-color: var(--error); border-style: solid; }
+
+/* C-03: login y cabecera con sesión */
+.cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.usuario { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--suave); }
+button {
+  font: inherit; padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--acento); background: var(--acento); color: #fff;
+}
+button:disabled { opacity: 0.6; cursor: default; }
+.usuario button { background: #fff; color: var(--acento); }
+.login { max-width: 360px; }
+.login form { display: flex; flex-direction: column; gap: 12px; }
+.login label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--suave); }
+.login input { font: inherit; padding: 8px; border: 1px solid var(--borde); border-radius: 6px; }

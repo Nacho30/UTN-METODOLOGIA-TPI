@@ -1,14 +1,11 @@
 """C-02 — Consultar agenda diaria (servicio y GET /agenda)."""
 
-import tempfile
 import unittest
-from pathlib import Path
 
-from fastapi.testclient import TestClient
-
-from odontologia.api import crear_app
 from odontologia.errores import ErrorTurno
 from odontologia.servicio import consultar_agenda, registrar_turno
+
+from .apoyo import BaseDeDatosDePrueba, cliente_con_sesion, nueva_app
 
 
 def alta(sesiones, inicio, fin, profesional="PRO-001", box="BOX-1", paciente="PAC-001"):
@@ -20,10 +17,10 @@ def alta(sesiones, inicio, fin, profesional="PRO-001", box="BOX-1", paciente="PA
 
 class BaseConTurnos(unittest.TestCase):
     def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory()
-        self.app = crear_app(f"sqlite:///{Path(self._tmp.name) / 'agenda.db'}")
+        self.base = BaseDeDatosDePrueba()
+        self.app = nueva_app(self.base)
         self.sesiones = self.app.state.sesiones
-        self.cliente = TestClient(self.app)
+        self.cliente = cliente_con_sesion(self.app, "profesional")
         # Cargados desordenados a propósito. Hora del consultorio: -03:00.
         alta(self.sesiones, "2026-12-01T11:00:00-03:00", "2026-12-01T11:30:00-03:00", "PRO-002", "BOX-2", "PAC-002")
         alta(self.sesiones, "2026-12-01T09:00:00-03:00", "2026-12-01T09:30:00-03:00")
@@ -33,8 +30,7 @@ class BaseConTurnos(unittest.TestCase):
         alta(self.sesiones, "2026-11-30T23:30:00-03:00", "2026-12-01T00:30:00-03:00", "PRO-001", "BOX-2")
 
     def tearDown(self):
-        self.app.state.motor.dispose()
-        self._tmp.cleanup()
+        self.base.limpiar(self.app.state.motor)
 
     def horas(self, turnos):
         return [(t["inicio"].strftime("%d %H:%M"), t["profesional_id"]) for t in turnos]

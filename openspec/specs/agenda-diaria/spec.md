@@ -1,7 +1,7 @@
 # agenda-diaria Specification
 
 ## Purpose
-Permitir que Recepción consulte los turnos de un día del consultorio, con filtros opcionales por profesional y box, desde la API y desde una pantalla web. Origen: change C-02 `consultar-agenda-diaria`.
+Permitir que Recepción consulte los turnos de un día del consultorio, con filtros opcionales por profesional y box, desde la API y desde una pantalla web. Origen: change C-02 `consultar-agenda-diaria`; C-03 agregó el acceso con sesión.
 
 ## Requirements
 
@@ -69,3 +69,15 @@ El frontend SHALL mostrar la agenda del día con selector de fecha (por defecto,
 #### Scenario: Backend apagado
 - **WHEN** la API no responde
 - **THEN** la pantalla muestra un mensaje de error que sugiere revisar el backend
+
+### Requirement: Acceso con sesión
+`GET /agenda` y `GET /catalogo` SHALL exigir una sesión válida con rol `recepcion`, `profesional` o `administracion` (ver `autenticacion-personal`). Sin sesión SHALL responder 401 `no_autenticado`.
+
+#### Scenario: Profesional consulta la agenda
+- **GIVEN** una sesión del usuario `profesional`
+- **WHEN** consulta `GET /agenda?fecha=2026-12-01`
+- **THEN** se responde 200
+
+#### Scenario: Catálogo sin sesión
+- **WHEN** se consulta `GET /catalogo` sin token
+- **THEN** se responde 401 `no_autenticado`

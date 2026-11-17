@@ -5,6 +5,11 @@ ESTADO_HTTP = {
     "recurso_desconocido": 404,
     "conflicto_profesional": 409,
     "conflicto_box": 409,
+    # C-03
+    "credenciales_invalidas": 401,
+    "no_autenticado": 401,
+    "token_invalido": 401,
+    "sin_permiso": 403,
 }
 
 
