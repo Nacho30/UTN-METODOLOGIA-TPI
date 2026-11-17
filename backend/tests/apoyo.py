@@ -7,16 +7,18 @@ se borra después.
 """
 
 import os
+import secrets
 import tempfile
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
 from odontologia.api import crear_app
-from odontologia.datos_demo import CLAVE_DEMO
 from odontologia.db import Base
 
 SECRETO_PRUEBA = "secreto-de-prueba-ficticio-de-32-caracteres-o-mas"
+# Clave de los usuarios ficticios: al azar en cada corrida, nunca escrita en el repo.
+CLAVE_PRUEBA = secrets.token_urlsafe(12)
 URL_EXTERNA = os.environ.get("ODONTOLOGIA_TEST_DB_URL")
 
 
@@ -41,6 +43,7 @@ class BaseDeDatosDePrueba:
 
 def nueva_app(base: BaseDeDatosDePrueba, **opciones):
     opciones.setdefault("secreto_jwt", SECRETO_PRUEBA)
+    opciones.setdefault("clave_demo", CLAVE_PRUEBA)
     if URL_EXTERNA:
         # La base externa puede tener restos de una corrida interrumpida.
         from odontologia.db import crear_motor
@@ -51,7 +54,7 @@ def nueva_app(base: BaseDeDatosDePrueba, **opciones):
     return crear_app(base.url, **opciones)
 
 
-def iniciar_sesion(cliente: TestClient, usuario: str = "recepcion", clave: str = CLAVE_DEMO) -> str:
+def iniciar_sesion(cliente: TestClient, usuario: str = "recepcion", clave: str = CLAVE_PRUEBA) -> str:
     respuesta = cliente.post("/auth/login", json={"usuario": usuario, "clave": clave})
     assert respuesta.status_code == 200, respuesta.text
     return respuesta.json()["access_token"]

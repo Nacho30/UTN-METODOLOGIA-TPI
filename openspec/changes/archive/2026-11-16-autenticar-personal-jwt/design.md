@@ -20,7 +20,10 @@ Un JWT no se puede "borrar": es válido hasta `exp`. Para cerrar sesión se guar
 *Alternativa descartada:* tokens cortos sin logout — no cumple el uso de Redis del stack ni permite cerrar sesión.
 
 ### D3 — PBKDF2-SHA256 de la biblioteca estándar
-260.000 iteraciones, sal de 16 bytes y comparación en tiempo constante (`hmac.compare_digest`). No agrega dependencias. La clave de demostración es una sola, ficticia y documentada; en el código sólo está su hash, salvo la constante usada por las pruebas.
+260.000 iteraciones, sal de 16 bytes y comparación en tiempo constante (`hmac.compare_digest`). No agrega dependencias.
+
+### D3b — Clave de demostración fuera del repositorio (corrección de auditoría)
+La primera versión de C-03 dejaba la clave de demostración escrita en el código y en el README. La consigna del TPI pide mantener "claves, tokens y contraseñas fuera del repositorio, de la entrega y del video", así que en la auditoría del 2026-11-16 se corrigió: la clave se lee de `ODONTOLOGIA_CLAVE_DEMO` (variable de entorno o `.env`), se guarda sólo su hash y, si falta, no se crean usuarios. Las pruebas generan una clave al azar en cada corrida. El cambio quedó en un commit propio para conservar la trazabilidad.
 
 ### D4 — Matriz de permisos (resuelve Q04)
 

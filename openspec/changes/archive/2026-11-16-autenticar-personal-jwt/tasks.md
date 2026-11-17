@@ -28,3 +28,4 @@ Cada tarea se marcó sólo después de ejecutar sus pruebas. Evidencia en `docs/
 - [x] 4.2 Prueba manual con Uvicorn + Redis: login, alta, logout y token revocado.
 - [x] 4.3 Revisión con la skill `odontologia-turnos` (incluye el nuevo punto de seguridad).
 - [x] 4.4 Sincronizar specs (`autenticacion-personal` nueva; `registro-turnos` y `agenda-diaria` modificadas) y archivar.
+- [x] 4.5 Corrección de auditoría: clave de demostración fuera del repositorio (`ODONTOLOGIA_CLAVE_DEMO`), pruebas con clave al azar y 3 pruebas nuevas (sin clave, clave corta, sólo hash). Suites en verde: 65 pruebas en SQLite y en PostgreSQL + Redis.

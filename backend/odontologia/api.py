@@ -7,6 +7,8 @@ Configuración por variables de entorno:
 - ODONTOLOGIA_JWT_SECRETO: secreto para firmar los JWT (mínimo 32 caracteres).
   Si falta, se genera uno al azar al iniciar y las sesiones se pierden al reiniciar.
 - ODONTOLOGIA_REDIS_URL: Redis para guardar las sesiones cerradas (opcional).
+- ODONTOLOGIA_CLAVE_DEMO: clave de los usuarios ficticios de demostración (mínimo
+  8 caracteres). Si falta, no se crean usuarios y nadie puede iniciar sesión.
 """
 
 import json
@@ -49,7 +51,7 @@ DOC_CUERPO_TURNO = {
     }
 }
 
-EJEMPLO_LOGIN = {"usuario": "recepcion", "clave": "Clave-Demo-2026"}
+EJEMPLO_LOGIN = {"usuario": "recepcion", "clave": "valor de ODONTOLOGIA_CLAVE_DEMO"}
 DOC_CUERPO_LOGIN = {
     "requestBody": {
         "required": True,
@@ -97,11 +99,15 @@ def crear_app(
     secreto_jwt: str | None = None,
     redis_url: str | None = None,
     minutos_token: int = auth.MINUTOS_TOKEN,
+    clave_demo: str | None = None,
 ) -> FastAPI:
     secreto = _secreto_configurado(secreto_jwt)
+    clave_demo = auth.validar_clave_demo(clave_demo or os.environ.get("ODONTOLOGIA_CLAVE_DEMO"))
+    if clave_demo is None:
+        warnings.warn("ODONTOLOGIA_CLAVE_DEMO no está definida: no se crean usuarios de demostración.", stacklevel=2)
     revocaciones = auth.crear_revocaciones(redis_url or os.environ.get("ODONTOLOGIA_REDIS_URL"))
     motor = crear_motor(url_db or os.environ.get("ODONTOLOGIA_DB_URL", URL_POR_DEFECTO))
-    preparar_agenda(motor)
+    preparar_agenda(motor, clave_demo)
     sesiones = crear_sesiones(motor)
 
     app = FastAPI(

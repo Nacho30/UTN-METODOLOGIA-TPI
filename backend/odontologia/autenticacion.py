@@ -53,6 +53,15 @@ def verificar_clave(clave: str, guardado: str) -> bool:
 
 # ---------------------------------------------------------------- tokens
 
+LARGO_MINIMO_CLAVE_DEMO = 8
+
+
+def validar_clave_demo(clave: str | None) -> str | None:
+    if clave is not None and len(clave) < LARGO_MINIMO_CLAVE_DEMO:
+        raise ValueError(f"ODONTOLOGIA_CLAVE_DEMO debe tener al menos {LARGO_MINIMO_CLAVE_DEMO} caracteres.")
+    return clave
+
+
 def validar_secreto(secreto: str) -> str:
     if not isinstance(secreto, str) or len(secreto) < LARGO_MINIMO_SECRETO:
         raise ValueError(f"El secreto JWT debe tener al menos {LARGO_MINIMO_SECRETO} caracteres.")

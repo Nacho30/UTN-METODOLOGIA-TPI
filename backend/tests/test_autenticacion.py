@@ -5,6 +5,7 @@ import time
 import unittest
 import uuid
 from datetime import datetime, timedelta, timezone
+from unittest import mock
 
 import jwt
 from fastapi.testclient import TestClient
@@ -16,10 +17,10 @@ from odontologia.autenticacion import (
     hashear_clave,
     verificar_clave,
 )
-from odontologia.datos_demo import CLAVE_DEMO
 from odontologia.db import crear_motor
 
 from .apoyo import (
+    CLAVE_PRUEBA,
     SECRETO_PRUEBA,
     BaseDeDatosDePrueba,
     cliente_con_sesion,
@@ -83,7 +84,7 @@ class BaseApi(unittest.TestCase):
 
 class Login(BaseApi):
     def test_login_correcto_devuelve_jwt_con_rol(self):
-        r = self.cliente.post("/auth/login", json={"usuario": "recepcion", "clave": CLAVE_DEMO})
+        r = self.cliente.post("/auth/login", json={"usuario": "recepcion", "clave": CLAVE_PRUEBA})
         self.assertEqual(r.status_code, 200)
         cuerpo = r.json()
         self.assertEqual((cuerpo["token_type"], cuerpo["rol"], cuerpo["usuario"]), ("bearer", "recepcion", "recepcion"))
@@ -95,7 +96,7 @@ class Login(BaseApi):
     def test_cada_rol_puede_iniciar_sesion(self):
         for usuario, rol in (("recepcion", "recepcion"), ("profesional", "profesional"), ("admin", "administracion")):
             with self.subTest(usuario=usuario):
-                r = self.cliente.post("/auth/login", json={"usuario": usuario, "clave": CLAVE_DEMO})
+                r = self.cliente.post("/auth/login", json={"usuario": usuario, "clave": CLAVE_PRUEBA})
                 self.assertEqual(r.json()["rol"], rol)
 
     def test_clave_incorrecta_y_usuario_inexistente_dan_el_mismo_error(self):
@@ -184,6 +185,39 @@ class Configuracion(unittest.TestCase):
                 nueva_app(base, secreto_jwt="corto")
         finally:
             base.limpiar(crear_motor(base.url))
+
+    def test_sin_clave_demo_no_hay_usuarios(self):
+        base = BaseDeDatosDePrueba()
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("ODONTOLOGIA_CLAVE_DEMO", None)
+            with self.assertWarnsRegex(UserWarning, "ODONTOLOGIA_CLAVE_DEMO"):
+                app = nueva_app(base, clave_demo=None)
+        try:
+            r = TestClient(app).post("/auth/login", json={"usuario": "recepcion", "clave": "cualquiera"})
+            self.assertEqual(r.json()["error"], "credenciales_invalidas")
+        finally:
+            base.limpiar(app.state.motor)
+
+    def test_clave_demo_corta_se_rechaza(self):
+        base = BaseDeDatosDePrueba()
+        try:
+            with self.assertRaises(ValueError):
+                nueva_app(base, clave_demo="corta")
+        finally:
+            base.limpiar(crear_motor(base.url))
+
+    def test_clave_demo_se_guarda_solo_como_hash(self):
+        from odontologia.db import Usuario
+
+        base = BaseDeDatosDePrueba()
+        app = nueva_app(base)
+        try:
+            with app.state.sesiones() as sesion:
+                hashes = {u.clave_hash for u in sesion.query(Usuario)}
+            self.assertEqual(len(hashes), 1)
+            self.assertTrue(all(CLAVE_PRUEBA not in h for h in hashes))
+        finally:
+            base.limpiar(app.state.motor)
 
     def test_revocaciones_en_memoria_vencen(self):
         store = RevocacionesMemoria()

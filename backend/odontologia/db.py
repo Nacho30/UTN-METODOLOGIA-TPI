@@ -89,8 +89,12 @@ def crear_sesiones(motor: Engine) -> sessionmaker:
     return sessionmaker(bind=motor, expire_on_commit=False)
 
 
-def preparar_agenda(motor: Engine) -> None:
-    """Crea las tablas y carga el catálogo ficticio si falta. Nunca borra turnos."""
+def preparar_agenda(motor: Engine, clave_demo: str | None = None) -> None:
+    """Crea las tablas y carga el catálogo ficticio si falta. Nunca borra turnos.
+
+    Los usuarios de demostración se crean sólo si se indica `clave_demo`
+    (variable ODONTOLOGIA_CLAVE_DEMO); se guarda únicamente su hash.
+    """
     Base.metadata.create_all(motor)
     with crear_sesiones(motor)() as sesion, sesion.begin():
         for modelo, filas in (
@@ -102,7 +106,13 @@ def preparar_agenda(motor: Engine) -> None:
             for id_, nombre in filas:
                 if id_ not in existentes:
                     sesion.add(modelo(id=id_, nombre=nombre))
+        if clave_demo is None:
+            return
         usuarios = set(sesion.scalars(select(Usuario.id)))
-        for id_, nombre, rol, clave_hash in datos_demo.USUARIOS:
-            if id_ not in usuarios:
+        faltantes = [u for u in datos_demo.USUARIOS if u[0] not in usuarios]
+        if faltantes:
+            from .autenticacion import hashear_clave
+
+            clave_hash = hashear_clave(clave_demo)
+            for id_, nombre, rol in faltantes:
                 sesion.add(Usuario(id=id_, nombre=nombre, rol=rol, clave_hash=clave_hash))

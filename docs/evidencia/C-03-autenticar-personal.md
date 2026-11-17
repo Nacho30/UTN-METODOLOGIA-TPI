@@ -41,7 +41,7 @@ All checks passed!
 ## Prueba manual (Uvicorn + PostgreSQL + Redis)
 
 ```text
-POST /auth/login  {"usuario":"recepcion","clave":"Clave-Demo-2026"}   → 200 con access_token
+POST /auth/login  {"usuario":"recepcion","clave":"<clave de demo>"}     → 200 con access_token
 POST /turnos  (con Bearer)                                              → 201
 POST /turnos  (sin token)                                               → 401 {"error":"no_autenticado",...}
 GET  /agenda?fecha=2026-12-01 (con Bearer)                              → 200
@@ -56,13 +56,25 @@ Swagger (`/openapi.json`) expone el esquema `HTTPBearer`, así aparece el botón
 
 | Requirement | Pruebas |
 | --- | --- |
-| Usuarios con clave protegida | `Claves.*` |
+| Usuarios con clave protegida | `Claves.*`, `Configuracion.test_sin_clave_demo_no_hay_usuarios`, `test_clave_demo_corta_se_rechaza`, `test_clave_demo_se_guarda_solo_como_hash` |
 | Inicio de sesión con JWT | `Login.*` |
 | Rutas protegidas | `ProteccionDeRutas.test_sin_token`, `test_tokens_invalidos` (6 casos), `test_esquema_que_no_es_bearer`, `test_health_es_publico` |
 | Permisos por rol | `Matriz.test_matriz_de_permisos`, `test_profesional_no_puede_registrar_turnos`, `test_recepcion_y_administracion_registran`, `test_permiso_se_evalua_antes_que_los_datos` |
 | Cierre de sesión con Redis | `CerrarSesion.*`, `RevocacionesEnRedis.*`, `Configuracion.test_revocaciones_en_memoria_vencen` |
 | Secreto configurable | `Configuracion.test_secreto_corto_se_rechaza_al_iniciar` |
 | Pantalla de ingreso | `sesion.test.ts` (7 pruebas); el flujo en el navegador se verifica a mano |
+
+## Corrección de auditoría (clave fuera del repo)
+
+Se movió la clave de demostración a `ODONTOLOGIA_CLAVE_DEMO` (ver design D3b). Resultado después de la corrección:
+
+```text
+$ python -W error::DeprecationWarning -m unittest discover -s tests -t .
+Ran 65 tests ... OK (skipped=3)
+
+$ ODONTOLOGIA_TEST_REDIS_URL=… ODONTOLOGIA_TEST_DB_URL=postgresql+psycopg://… python -m unittest discover -s tests -t .
+Ran 65 tests ... OK      (tres corridas seguidas)
+```
 
 ## Revisión con la skill `odontologia-turnos`
 

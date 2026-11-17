@@ -6,7 +6,19 @@ Identificar al personal del consultorio con JWT, aplicar permisos por rol en el 
 ## Requirements
 
 ### Requirement: Usuarios ficticios con clave protegida
-El sistema SHALL preparar tres usuarios ficticios: `recepcion` (rol `recepcion`), `profesional` (rol `profesional`) y `admin` (rol `administracion`). Las claves SHALL guardarse sólo como hash PBKDF2-SHA256 con sal aleatoria y MUST NOT guardarse en texto plano.
+El sistema SHALL preparar tres usuarios ficticios: `recepcion` (rol `recepcion`), `profesional` (rol `profesional`) y `admin` (rol `administracion`), con la clave indicada en `ODONTOLOGIA_CLAVE_DEMO` (mínimo 8 caracteres). Si la variable no está definida SHALL no crear usuarios y emitir una advertencia. Las claves SHALL guardarse sólo como hash PBKDF2-SHA256 con sal aleatoria y MUST NOT figurar en el repositorio ni guardarse en texto plano.
+
+#### Scenario: Sin clave de demostración
+- **WHEN** se inicia sin `ODONTOLOGIA_CLAVE_DEMO`
+- **THEN** se emite una advertencia y cualquier login responde 401 `credenciales_invalidas`
+
+#### Scenario: Clave de demostración corta
+- **WHEN** `ODONTOLOGIA_CLAVE_DEMO` tiene menos de 8 caracteres
+- **THEN** el inicio falla con un error de configuración
+
+#### Scenario: Sólo el hash en la base
+- **WHEN** se crean los usuarios
+- **THEN** la base guarda un hash que no contiene la clave
 
 #### Scenario: Hash de clave
 - **WHEN** se hashea una clave

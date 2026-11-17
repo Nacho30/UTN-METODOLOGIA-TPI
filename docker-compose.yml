@@ -31,6 +31,7 @@ services:
       ODONTOLOGIA_DB_URL: postgresql+psycopg://odontologia:${POSTGRES_PASSWORD}@db:5432/odontologia
       ODONTOLOGIA_REDIS_URL: redis://redis:6379/0
       ODONTOLOGIA_JWT_SECRETO: ${ODONTOLOGIA_JWT_SECRETO:?Definir ODONTOLOGIA_JWT_SECRETO en .env}
+      ODONTOLOGIA_CLAVE_DEMO: ${ODONTOLOGIA_CLAVE_DEMO:?Definir ODONTOLOGIA_CLAVE_DEMO en .env}
     depends_on:
       db:
         condition: service_healthy
