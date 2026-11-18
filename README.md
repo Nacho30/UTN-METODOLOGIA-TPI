@@ -175,7 +175,7 @@ Detalle en [knowledge-base/04_reglas_de_negocio.md](knowledge-base/04_reglas_de_
 
 - **Flujo:** Active Stack (fundación) + OpenSpec (explore → propose → apply → verify → archive). Ver [AGENTS.md](AGENTS.md).
 - **Skill propia:** [`odontologia-turnos`](.agents/skills/odontologia-turnos/SKILL.md), creada con la guía de `skill-creator`. Necesidad, adaptación e integración en [docs/skills-mcp/skill-propia.md](docs/skills-mcp/skill-propia.md).
-- **MCP:** Context7, para consultar documentación actualizada de Vite en C-02. Ver [docs/skills-mcp/mcp-context7.md](docs/skills-mcp/mcp-context7.md).
+- **MCP:** Context7 (conector de claude.ai), usado para verificar contra la documentación oficial el proxy de Vite de C-02 y el `with_for_update()` de SQLAlchemy de C-04. Conexión, consultas y resultados en [docs/skills-mcp/mcp-context7.md](docs/skills-mcp/mcp-context7.md).
 
 ## Uso de IA
 

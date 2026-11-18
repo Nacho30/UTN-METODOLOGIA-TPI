@@ -77,13 +77,17 @@ Con el PDF del TPI a mano se revisó punto por punto. Hallazgos nuevos:
 - Flujo real en el navegador: login → agenda → salir, con login 200 y logout 204 (ver evidencia de C-03).
 - Docker Desktop no estaba instalado; el alumno lo instaló y el agente levantó el stack completo con `docker compose up --build -d`: PostgreSQL y Redis sanos, backend y frontend arriba, flujo completo por el frontend (201/409/422/403/401) y datos verificados en PostgreSQL y Redis (ver evidencia de C-04). **A-11 resuelto.**
 
+## 2026-11-18 — MCP Context7 conectado y usado
+
+- El alumno conectó el conector Context7 en claude.ai; el agente comprobó la conexión (`connected`, herramientas habilitadas).
+- Consultas reales con `resolve-library-id` y `query-docs`: proxy de Vite v6.4.5 (verificación de C-02) y `with_for_update()` de SQLAlchemy 2.0 (verificación de C-04). Resultado contrastado con el código; ambas decisiones coinciden con la documentación oficial. Detalle en `docs/skills-mcp/mcp-context7.md`. **A-12 resuelto.**
+
 ## Limitaciones conocidas (para no afirmar de más)
 
 - En el entorno del agente **no había acceso** a PyPI, npm ni a la CLI de OpenSpec. Por eso:
   - las pruebas de backend se corrieron con las librerías obtenidas de sus repositorios oficiales (ver evidencia);
   - la estructura de `openspec/` se escribió siguiendo el formato de OpenSpec (luego validada en la PC del alumno, ver arriba);
   - `npm install` y `npm run build` se verificaron en la PC del alumno (ver arriba).
-- La consulta con el MCP Context7 está **pendiente** (ver `docs/skills-mcp/mcp-context7.md`).
 - `docker compose up --build` no se pudo ejecutar en el entorno del agente; se ejecutó en la PC del alumno el 2026-11-18.
 - Las pruebas de PostgreSQL y Redis del agente usaron psycopg y redis-py obtenidos de sus repositorios oficiales, por no tener acceso a PyPI.
 - Nada de esto acredita revisión humana: el alumno debe leer y verificar los artefactos.
