@@ -71,6 +71,12 @@ Con el PDF del TPI a mano se revisó punto por punto. Hallazgos nuevos:
 | A-11 | "Archivar no sustituye probar (...) comprueben también el funcionamiento real" | Docker Compose y la pantalla de login no se ejecutaron todavía en la PC del alumno. | Pendiente de verificar en la PC del alumno (tiene Docker Desktop) antes de entregar. |
 | A-12 | MCP: "cómo comprobaron la conexión y el uso de una herramienta real" | Sin evidencia. | El alumno conecta Context7; la consulta se documenta en `docs/skills-mcp/mcp-context7.md`. |
 
+## 2026-11-18 — Verificación en la PC del alumno
+
+- `verificar.ps1` en Windows: 65 pruebas de backend OK, 17 de frontend OK, build OK, OpenSpec 4/4 specs válidas → `TODO OK`. Resuelve la parte de A-11 sobre la pantalla de login.
+- Flujo real en el navegador: login → agenda → salir, con login 200 y logout 204 (ver evidencia de C-03).
+- Docker Desktop **no está instalado** en la PC del alumno: la parte de Docker de A-11 sigue pendiente.
+
 ## Limitaciones conocidas (para no afirmar de más)
 
 - En el entorno del agente **no había acceso** a PyPI, npm ni a la CLI de OpenSpec. Por eso:

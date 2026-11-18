@@ -92,3 +92,11 @@ Ran 65 tests ... OK      (tres corridas seguidas)
 | 10 | Seguridad | ✅ | Todas las rutas salvo `/health` y login protegidas; `alg: none` rechazado; mismo error ante usuario o clave incorrectos |
 
 **Bloqueantes:** ninguno.
+
+## Verificación en la PC del alumno (2026-11-18)
+
+Windows, carpeta del TPI, ejecutado por el agente con control de la PC del alumno:
+
+- `scripts\verificar.ps1`: backend `Ran 65 tests ... OK (skipped=3)`, frontend `tests 17 · pass 17 · fail 0`, `tsc --noEmit && vite build` correcto, `openspec validate --all --strict` → `4 passed, 0 failed`. Resultado: `TODO OK`.
+- Backend (`1-INICIAR-BACKEND.bat`) y frontend (`2-INICIAR-FRONTEND.bat`) levantados; en el navegador, `http://localhost:5173`: ingreso como `recepcion` → agenda del día con filtros y catálogo; "Salir" → vuelve al ingreso. Pedidos registrados: `POST /api/auth/login 200`, `GET /api/catalogo 200`, `GET /api/agenda 200`, `POST /api/auth/logout 204`.
+- Docker: **no instalado** en la PC del alumno; `docker compose up` todavía no se ejecutó.
