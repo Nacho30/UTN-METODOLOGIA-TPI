@@ -75,7 +75,7 @@ Con el PDF del TPI a mano se revisó punto por punto. Hallazgos nuevos:
 
 - `verificar.ps1` en Windows: 65 pruebas de backend OK, 17 de frontend OK, build OK, OpenSpec 4/4 specs válidas → `TODO OK`. Resuelve la parte de A-11 sobre la pantalla de login.
 - Flujo real en el navegador: login → agenda → salir, con login 200 y logout 204 (ver evidencia de C-03).
-- Docker Desktop **no está instalado** en la PC del alumno: la parte de Docker de A-11 sigue pendiente.
+- Docker Desktop no estaba instalado; el alumno lo instaló y el agente levantó el stack completo con `docker compose up --build -d`: PostgreSQL y Redis sanos, backend y frontend arriba, flujo completo por el frontend (201/409/422/403/401) y datos verificados en PostgreSQL y Redis (ver evidencia de C-04). **A-11 resuelto.**
 
 ## Limitaciones conocidas (para no afirmar de más)
 
@@ -84,6 +84,6 @@ Con el PDF del TPI a mano se revisó punto por punto. Hallazgos nuevos:
   - la estructura de `openspec/` se escribió siguiendo el formato de OpenSpec (luego validada en la PC del alumno, ver arriba);
   - `npm install` y `npm run build` se verificaron en la PC del alumno (ver arriba).
 - La consulta con el MCP Context7 está **pendiente** (ver `docs/skills-mcp/mcp-context7.md`).
-- `docker compose up --build` no se ejecutó en el entorno del agente.
+- `docker compose up --build` no se pudo ejecutar en el entorno del agente; se ejecutó en la PC del alumno el 2026-11-18.
 - Las pruebas de PostgreSQL y Redis del agente usaron psycopg y redis-py obtenidos de sus repositorios oficiales, por no tener acceso a PyPI.
 - Nada de esto acredita revisión humana: el alumno debe leer y verificar los artefactos.

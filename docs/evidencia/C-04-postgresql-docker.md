@@ -76,3 +76,51 @@ Uvicorn con `ODONTOLOGIA_DB_URL=postgresql+psycopg://…` y `ODONTOLOGIA_REDIS_U
 | 10 | Seguridad | ✅ | Puertos sólo en `127.0.0.1`; backend sin root en Docker |
 
 **Bloqueantes:** ninguno.
+
+## Verificación con Docker en la PC del alumno (2026-11-18)
+
+Windows con Docker Desktop recién instalado, ejecutado por el agente con control de la PC del alumno. `.env` generado localmente (no versionado).
+
+```text
+$ docker compose up --build -d
+ Image utn-metodologia-tpi-frontend Built
+ Image utn-metodologia-tpi-backend Built
+ Container utn-metodologia-tpi-db-1 Healthy
+ Container utn-metodologia-tpi-redis-1 Healthy
+ Container utn-metodologia-tpi-backend-1 Started
+ Container utn-metodologia-tpi-frontend-1 Started
+
+$ docker compose ps
+backend    Up   127.0.0.1:8000->8000/tcp
+db         Up (healthy)
+frontend   Up   127.0.0.1:8080->80/tcp
+redis      Up (healthy)
+
+GET http://127.0.0.1:8000/health  → {"estado":"ok"}
+GET http://127.0.0.1:8080/        → 200
+```
+
+Pedidos reales a través del frontend en Docker (`http://localhost:8080/api/...`, Nginx → backend → PostgreSQL / Redis):
+
+| Pedido | Resultado |
+| --- | --- |
+| `POST /turnos` sin token | 401 `no_autenticado` |
+| Login `recepcion` + `POST /turnos` 09:00–09:30 | 201 (`12:00Z`–`12:30Z`) |
+| Mismo profesional, BOX-2, 09:15–09:45 | 409 `conflicto_profesional` |
+| Turno pegado 09:30–10:00 | 201 |
+| `inicio` sin zona horaria | 422 `entrada_invalida` |
+| Login `profesional` + `POST /turnos` | 403 `sin_permiso` |
+| `GET /agenda?fecha=2026-12-01` | 200 con los 2 turnos |
+| `POST /auth/logout` y reintento con el mismo token | 204 y luego 401 `token_invalido` |
+
+Pantalla en `http://localhost:8080`: ingreso como `recepcion`, fecha 01/12/2026 → tabla con 09:00 – 09:30 y 09:30 – 10:00.
+
+Datos guardados, consultados dentro de los contenedores:
+
+```text
+PostgreSQL  select … from turnos   → 2 filas (PRO-001, BOX-1, 12:00–12:30 y 12:30–13:00 UTC)
+PostgreSQL  select … from usuarios → recepcion, profesional, admin con hash pbkdf2_sha256$… (sin claves)
+Redis       --scan odontologia:revocado:* → odontologia:revocado:82c2a3cb57d34ffb8bfd8997b77d3d14
+```
+
+Con esto queda resuelta la limitación anterior: Docker Compose se construyó, levantó y usó de punta a punta.

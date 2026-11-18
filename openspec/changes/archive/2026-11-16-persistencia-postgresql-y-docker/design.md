@@ -38,4 +38,4 @@ Driver oficial moderno de PostgreSQL, soportado por SQLAlchemy 2 (`postgresql+ps
 ## Risks / Trade-offs
 
 - **Sin Alembic:** un cambio de esquema futuro necesitará migraciones → change propio.
-- **Docker no se pudo ejecutar en el entorno del agente** (sin acceso a Docker Hub): se validó la sintaxis con `docker compose config`; levantar los contenedores queda para la PC del alumno.
+- **Docker no se pudo ejecutar en el entorno del agente** (sin acceso a Docker Hub): se validó la sintaxis con `docker compose config`. El 2026-11-18 se levantó y probó el stack completo en la PC del alumno (ver evidencia).
